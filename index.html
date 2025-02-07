@@ -84,6 +84,12 @@
             margin-bottom: 0.25rem;
         }
 
+        .username-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
         .discriminator {
             color: var(--discord-light);
             opacity: 0.8;
@@ -192,8 +198,9 @@
                     <div id="UrlImage" class="profile-avatar" role="button"></div>
                     <div class="profile-info">
                         <div class="username-container">
-                            <span id="UserId" class="username"></span>
-                            <span id="NumberId" class="discriminator"></span>
+                            <span id="GlobalName" class="username"></span>
+                            <span id="Username" class="discriminator"></span>
+                            <span id="Discriminator" class="discriminator"></span>
                         </div>
                         <div class="status">
                             <div class="status-dot"></div>
@@ -208,8 +215,8 @@
         </div>
     </div>
     <footer>
-        <span>Made with ❤ by @rflyhigh</span>
-        <span> · Not affiliated or endorsed by Discord, Inc</span>
+        <span>Made with ❤ by Taichikuji</span>
+        <span> · Not affiliated with Discord, Inc</span>
     </footer>
 
     <script>
@@ -236,14 +243,18 @@
                 const avatarUrl = `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.webp`;
                 document.getElementById("UrlImage").style.backgroundImage = `url(${avatarUrl})`;
                 
-                // Set username
-                const username = data.global_name || data.username;
-                document.getElementById("UserId").textContent = username;
-                document.getElementById("NumberId").textContent = data.discriminator !== "0" ? `#${data.discriminator}` : "";
+                // Set global name (display name) and username
+                const globalName = data.global_name || data.username;
+                const username = data.username;
+                const discriminator = data.discriminator !== "0" ? `#${data.discriminator}` : "";
+
+                document.getElementById("GlobalName").textContent = globalName;
+                document.getElementById("Username").textContent = username;
+                document.getElementById("Discriminator").textContent = discriminator;
                 
                 // Update button and title
-                document.getElementById("AccessBtn").textContent = `Add ${username}`;
-                document.getElementById("DiscTitle").textContent += ` · ${username}`;
+                document.getElementById("AccessBtn").textContent = `Add ${globalName || username}`;
+                document.getElementById("DiscTitle").textContent += ` · ${globalName || username}`;
 
             } catch (error) {
                 showError();
@@ -263,10 +274,14 @@
         function redirect() {
             const params = new URLSearchParams(location.search);
             const userId = params.get("id");
-            const username = document.getElementById("UserId").textContent + 
-                             document.getElementById("NumberId").textContent;
+            
+            // Copy username to clipboard
+            const username = document.getElementById("Username").textContent + 
+                             document.getElementById("Discriminator").textContent;
             
             navigator.clipboard.writeText(username).catch(console.error);
+            
+            // Redirect to Discord profile
             window.location.href = `https://discord.com/users/${userId}`;
         }
     </script>
